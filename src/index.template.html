@@ -1,22 +1,77 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title><%= productName %></title>
+<template>
+  <div id="q-app"></div>
+  <div class="q-pa-md" style="max-width: 400px">
+    <q-form
+      @submit="onSubmit"
+      @reset="onReset"
+      class="q-gutter-md"
+    >
+      <q-input
+        filled
+        v-model="name"
+        label="Your name *"
+        hint="Name and surname"
+        lazy-rules
+        :rules="[ val => val && val.length > 0 || 'Please type something']"
+      />
+      <q-input
+        filled
+        type="number"
+        v-model="age"
+        label="Your age *"
+        lazy-rules
+        :rules="[
+          val => val !== null && val !== '' || 'Please type your age',
+          val => val > 0 && val < 100 || 'Please type a real age'
+        ]"
+      />
+      <q-toggle v-model="accept" label="I accept the license and terms" />
+      <div>
+        <q-btn label="Submit" type="submit" color="primary"/>
+        <q-btn label="Reset" type="reset" color="primary" flat class="q-ml-sm" />
+      </div>
+    </q-form>
+  </div>
+</template>
+<script>
+import { useQuasar } from 'quasar'
+import { ref } from 'vue'
 
-    <meta charset="utf-8">
-    <meta name="description" content="<%= productDescription %>">
-    <meta name="format-detection" content="telephone=no">
-    <meta name="msapplication-tap-highlight" content="no">
-    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width<% if (ctx.mode.cordova || ctx.mode.capacitor) { %>, viewport-fit=cover<% } %>">
+export default {
+  setup () {
+    const $q = useQuasar()
 
-    <link rel="icon" type="image/png" sizes="128x128" href="icons/favicon-128x128.png">
-    <link rel="icon" type="image/png" sizes="96x96" href="icons/favicon-96x96.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
-    <link rel="icon" type="image/ico" href="favicon.ico">
-  </head>
-  <body>
-    <!-- DO NOT touch the following DIV -->
-    <div id="q-app"></div>
-  </body>
-</html>
+    const name = ref(null)
+    const age = ref(null)
+    const accept = ref(false)
+    return {
+      name,
+      age,
+      accept,
+      onSubmit () {
+        if (accept.value !== true) {
+          $q.notify({
+            color: 'red-5',
+            textColor: 'white',
+            icon: 'warning',
+            message: 'You need to accept the license and terms first'
+          })
+        }
+        else {
+          $q.notify({
+            color: 'green-4',
+            textColor: 'white',
+            icon: 'cloud_done',
+            message: 'Submitted'
+          })
+        }
+      },
+      onReset () {
+        name.value = null
+        age.value = null
+        accept.value = false
+      }
+    }
+  }
+}
+</script>
